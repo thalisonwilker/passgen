@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Gerador de senha aleatória</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+  </head>
+  <body>
+    <h1 class="text-center py-2">Gerador de senhas aleatórias</h1>
+    <div class="container">
+    	<div class="row">
+    		<div class="col-md-3 col-xs-12 3">
+				<div class="form-group">
+					<label for="tamanho">Tamanho</label>
+    				<input value="10" id="tamanho" type="number" class="form-control">
+				</div>
+    	</div>
+
+    	<div class="col-md-3 col-xs-12">
+    		<p class="lead">Opções</p>
+    		<p id="alerta"></p>
+    		
+			<div class="form-check">
+				<label class="form-check-label">
+				<input id="numeros" class="form-check-input" type="checkbox" value="">
+					Números
+				</label>
+			</div>
+			<div class="form-check">
+				<label class="form-check-label">
+				<input id="lower" checked="checked" class="form-check-input" type="checkbox" value="">
+					Letras minúsculas
+				</label>
+			</div>
+
+			<div class="form-check">
+				<label class="form-check-label">
+				<input id="uppercases" class="form-check-input" type="checkbox" value="">
+					Letras Maiúsculas
+				</label>
+			</div>
+
+			<div class="form-check">
+				<label class="form-check-label">
+				<input id="unicodes" class="form-check-input" type="checkbox" value="">Caracteres Especiais
+				</label>
+			</div>
+    	</div>
+
+    	<div class="col-md-6 col-xs-12">
+    		<label for="quantidade">Quantidade de senhas</label>
+			<input value="1" type="number" id="quantidade" class="form-control">
+    	</div>
+    </div>
+
+    <div class="row">
+    	<div class="col-md-12 py-3">
+    		<button id="btn-start" class="mx-auto col-md-6 btn-block btn btn-primary">gerar</button>
+    	</div>
+    </div>
+
+    <div class="container py-2">
+    	<div class="row">
+    		<div class="col-md-12 col-xs-12">
+    			
+    			<div class="form-group">
+    				<ul id="results" class="list-group">
+    				</ul>
+    			</div>
+    		</div>
+    	</div>
+    </div>
+
+    <script src="js/jquery-3.2.1.min.js"></script>
+    <script src="js/popper.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+
+
+    <script>
+
+    	$("#btn-start").on("click", ()=>{
+    		tamanho = $("#tamanho").val();
+    		$("#tamanho").removeClass("is-invalid");
+
+    		var vai = false;
+
+    		if (tamanho.length == 0 || tamanho == 0 || $("#quantidade").val().length == 0 || $("#quantidade").val() == 0) {
+    			$("#tamanho").addClass("is-invalid");
+    			vai = false;
+
+    		}else{
+    			vai = true;
+    		}
+
+    		$("#alerta").text("");
+    		$("#alerta").removeClass("text-danger");
+
+    		numeros = document.getElementById("numeros").checked;
+    		upperCases = document.getElementById("uppercases").checked;
+    		unicodes = document.getElementById("unicodes").checked;
+    		lowerCase = document.getElementById("lower").checked;
+
+    		if (numeros == false && 
+    			upperCases == false && 
+    			unicodes == false && 
+    			lowerCase == false ) 
+    		{
+    			$("#alerta").addClass("text-danger");
+
+    			$("#alerta").text("Escolha um formato de senha");
+    			vai = false;
+
+    		}else{
+    			vai = true;
+    		}
+
+    		if (vai) 
+    		{
+    			chama(tamanho, lowerCase, upperCases, unicodes, numeros);
+    		
+    		}	
+    		
+
+
+    	});
+
+    	function chama(tamanho, lowerCase, upperCases, unicodes, numeros){
+    		
+    		$("#results").html("");
+
+	    		for(var i = 0; i < $("#quantidade").val(); i++){
+
+		    		senha = gerar(tamanho, lowerCase, upperCases, unicodes, numeros);
+
+		    		$("#results").append("<li data-id=\""+senha+"\" class=\"list-group-item\">"+senha+" <a href=\"#\" value=\""+senha+"\" class=\"badge badge-primary\">copiar</a><input style=\"opacity:0\" type=\"text\" id=\""+senha+"\" value=\""+senha+"\"></li>");
+	    	}
+
+	    	copiar();
+    	}
+
+    	function copiar(){
+
+    		var itens = $("#results li");
+    		var i = 0;
+
+    		for(i ; i < itens.length; i++){
+    			$(itens[i]).on("click", (origin)=>{
+
+    				var input = origin.currentTarget.querySelector("input");
+    				var badge = origin.currentTarget.querySelector("a");
+    				input.select();
+    				document.execCommand("copy");
+    				badge.innerHTML = "copiado";
+    				removerTextoCopiado(input.getAttribute("value"));
+    				badge.classList.remove("badge-primary");
+    				badge.classList.add("badge-success");
+    			});
+    		}
+
+    	}
+
+    	function removerTextoCopiado(naoRemover){
+    		var itens = $("#results li");
+
+    		for(var i = 0 ; i < itens.length; i++){
+    			if($(itens[i])[0].dataset.id == naoRemover)
+    			{
+    				
+    			}else{
+    				var badge = itens[i].querySelector("a");
+    				badge.classList.remove("badge-success");
+    				badge.classList.add("badge-primary");
+    				badge.innerHTML = "copiar";
+    			}
+    		}
+
+
+    	}
+
+    	function gerar(range, lower, upper, unicodes, ComNumeros){
+    		var senha = "";
+    		var alfabeto = "";
+    		var caracteresEspeciais = "'\"!;.,/?°\\º|@#$%*()_-}][{¬¢£³²ºª§¬¹";
+
+    		var alfabetoLower = 'abcdefghijklmnopqrstuvwxyz';
+    		var numeros = '0123456789';
+    		var alfabetoUpper = alfabetoLower.toUpperCase();
+
+    		if (lower) {
+    			alfabeto += alfabetoLower;
+    		}
+
+    		if (upper) {
+    			alfabeto += alfabetoUpper;
+    		}
+
+    		if (ComNumeros) {
+    			alfabeto += numeros;
+    		}
+
+    		if (unicodes) {
+    			alfabeto += caracteresEspeciais;
+    		}
+
+    		for(var i = 0; i < range; i++){
+    			numaro = Math.round(Math.random() * (alfabeto.length - 1));
+    			letra = alfabeto[numaro];
+    			senha += letra
+    		}
+    		return senha;
+    	}
+
+    </script>
+  </body>
+</html>
